@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Opinion</string>
+    <!-- titles -->
+    <string name="achievements_title">Achievements</string>
+    <string name="questions_title">Questions</string>
+    <string name="profile_title">Profile</string>
+
+    <!-- Sign-in status messages -->
+    <string name="sign_in">Sign In Google</string>
+    <string name="signed_in_fmt">Signed in as: %s</string>
+    <string name="signed_in">Signed in</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="cant_sign_out">Can`t Sign Out</string>
+    <string name="signed_out">Signed out</string>
+    <string name="signed_in_err">"Error: please check logs."</string>
+    <string name="disconnect">Disconnect</string>
+
+    <!-- variables -->
+    <string name="no_questions">No questions</string>
+    <string name="loading_question">Loading…</string>
+    <string name="loading">Loading...</string>
+</resources>

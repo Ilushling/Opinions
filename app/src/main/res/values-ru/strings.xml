@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Мнения</string>
+    <!-- titles -->
+    <string name="achievements_title">Достижения</string>
+    <string name="questions_title">Вопросы</string>
+    <string name="profile_title">Профиль</string>
+
+    <!-- Sign-in status messages -->
+    <string name="sign_in">Войти через Google</string>
+    <string name="signed_in_fmt">Вошел как: %s</string>
+    <string name="signed_in">Вошел</string>
+    <string name="signing_in">Входим...</string>
+    <string name="sign_out">Выйти</string>
+    <string name="cant_sign_out">Невозможно выйти</string>
+    <string name="signed_out">Вышел</string>
+    <string name="signed_in_err">Ошибка аутентификации</string>
+    <string name="disconnect">Отсоединен</string>
+
+    <!-- variables -->
+    <string name="no_questions">Вопросов нет</string>
+    <string name="loading_question">Загрузка...</string>
+    <string name="loading">Загрузка...</string>
+</resources>
