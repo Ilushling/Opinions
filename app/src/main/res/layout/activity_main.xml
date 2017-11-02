@@ -22,43 +22,49 @@
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/tabLayout"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/cardView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
 
     </android.support.constraint.ConstraintLayout>
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="0dp"
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
+        app:cardElevation="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:tabIndicatorColor="@color/tabSelected"
-        app:tabIndicatorHeight="4dp"
-        app:tabSelectedTextColor="@color/tabSelected"
-        app:tabTextColor="@color/tab">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <android.support.design.widget.TabItem
-            android:layout_width="wrap_content"
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/questions_title"/>
+            android:background="@color/colorAccent"
+            app:tabIndicatorColor="@color/tabSelected"
+            app:tabIndicatorHeight="4dp"
+            app:tabSelectedTextColor="@color/tabSelected"
+            app:tabTextColor="@color/tab">
 
-        <android.support.design.widget.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/achievements_title"/>
+            <android.support.design.widget.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/questions_title"/>
 
-        <android.support.design.widget.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/profile_title"/>
-    </android.support.design.widget.TabLayout>
+            <android.support.design.widget.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/achievements_title"/>
+
+            <android.support.design.widget.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_title"/>
+        </android.support.design.widget.TabLayout>
+    </android.support.v7.widget.CardView>
 
 
 </android.support.constraint.ConstraintLayout>

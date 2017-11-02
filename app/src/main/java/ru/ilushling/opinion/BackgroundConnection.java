@@ -37,6 +37,7 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     private SignIn mSignIn;
     private Question mQuestion;
     String responce, logs, server;
+    Boolean cache = false;
 
     // Questions
     private Questions.QuestionsBackgroundConnectionLoad mQuestionsBackgroundConnectionLoad;
@@ -54,11 +55,12 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
 
     // Questions
     // Load
-    public BackgroundConnection(Questions.QuestionsBackgroundConnectionLoad backgroundConnectionLoad, Context context, String method, SignIn mSignIn) {
+    public BackgroundConnection(Questions.QuestionsBackgroundConnectionLoad backgroundConnectionLoad, Context context, String method, SignIn mSignIn, Boolean cache) {
         this.mQuestionsBackgroundConnectionLoad = backgroundConnectionLoad;
         this.context = context;
         this.method = method;
         this.mSignIn = mSignIn;
+        this.cache = cache;
     }
 
     // Send
@@ -139,7 +141,8 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                     break;
                 case "loadQuestion":
                     post_data = URLEncoder.encode("method", "UTF-8") + "=" + URLEncoder.encode(method, "UTF-8") + "&" +
-                            URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(mSignIn.token, "UTF-8");
+                            URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(mSignIn.token, "UTF-8") + "&" +
+                            URLEncoder.encode("cache", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(cache), "UTF-8");
                     break;
                 case "loadStatistic":
                     post_data = URLEncoder.encode("method", "UTF-8") + "=" + URLEncoder.encode(method, "UTF-8") + "&" +
@@ -219,8 +222,10 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                                 try {
                                     // Thumbnail
                                     if (jsonQuestion.has("thumbnail") && jsonQuestion.getString("thumbnail") != null) {
+                                        Log.e(TAG, "loading thumnbail");
                                         InputStream in = new java.net.URL(server + "/" + jsonQuestion.getString("thumbnail")).openStream();
                                         mQuestion.thumbnail = BitmapFactory.decodeStream(in);
+                                        Log.e(TAG, "thumbnail loaded");
                                     }
                                 } catch (Exception e) {
                                     Log.e(TAG, "error load thumbnail");
@@ -263,34 +268,25 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     protected void onPreExecute() {
         super.onPreExecute();
 
-        pDialog = new ProgressDialog(context);
-        pDialog.setMessage(context.getString(R.string.loading));
-        pDialog.setIndeterminate(false);
-        pDialog.setCancelable(false);
-        pDialog.show();
-
         switch (method) {
             case "loadQuestion":
+                if (!cache) {
+                    pDialog = new ProgressDialog(context);
+                    pDialog.setMessage(context.getString(R.string.loading_question));
+                    pDialog.setIndeterminate(false);
+                    pDialog.setCancelable(false);
+                    pDialog.show();
+                } else {
+                    Log.e(TAG, "caching...");
+                }
                 break;
             case "sendQuestion":
-                String userResult = "";
-                for (int i = 0; i < mQuestion.opinions.size(); i++) {
-                    userResult += "За \"" + mQuestion.opinions.get(i) + "\" проголовало " + mQuestion.userOpinionsCount.get(i) + " человек\n";
-                }
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Статистика")
-                        .setMessage(userResult)
-                        .setCancelable(false)
-                        .setNegativeButton("Следующий вопрос",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        mQuestionsBackgroundConnectionSend.loadNextQuestion();
-                                        dialog.cancel();
-                                    }
-                                });
-                AlertDialog alert = builder.create();
-                alert.show();
+                // Animation sending
+                pDialog = new ProgressDialog(context);
+                pDialog.setMessage(context.getString(R.string.sending_question));
+                pDialog.setIndeterminate(false);
+                pDialog.setCancelable(false);
+                pDialog.show();
                 break;
         }
     }
@@ -298,34 +294,47 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     @Override
     protected void onPostExecute(Question question) {
         super.onPostExecute(question);
-        // Animation loading
-        pDialog.dismiss();
-        /*
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Отладка")
-                .setMessage(responce)
-                .setCancelable(false)
-                .setNegativeButton("Закрыть",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-        AlertDialog alert = builder.create();
-        alert.show();
-        */
-
         // update UI
         try {
             switch (method) {
                 case "signIn":
                     break;
                 case "loadQuestion":
+                    // Animation loading end
+                    if (!cache) {
+                        pDialog.dismiss();
+                    } else {
+                        Log.e(TAG, "cached");
+                    }
+
                     if (question != null && question.question != "") {
                         mQuestionsBackgroundConnectionLoad.updateUIAsync(question);
                     } else {
                         mQuestionsBackgroundConnectionLoad.updateUIAsync(null);
                     }
+                    break;
+                case "sendQuestion":
+                    // Animation sending end
+                    pDialog.dismiss();
+
+                    String userResult = "";
+                    for (int i = 0; i < mQuestion.opinions.size(); i++) {
+                        userResult += "За \"" + mQuestion.opinions.get(i) + "\" проголовало " + mQuestion.userOpinionsCount.get(i) + " человек\n";
+                    }
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle("Статистика")
+                            .setMessage(userResult)
+                            .setCancelable(false)
+                            .setNegativeButton("Следующий вопрос",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            mQuestionsBackgroundConnectionSend.loadNextQuestion();
+                                            dialog.cancel();
+                                        }
+                                    });
+                    AlertDialog alert = builder.create();
+                    alert.show();
                     break;
                 case "loadStatistic":
                     //mBackgroundConnectionLoad.updateUIAsync(question);

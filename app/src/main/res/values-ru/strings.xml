@@ -20,5 +20,6 @@
     <!-- variables -->
     <string name="no_questions">Вопросов нет</string>
     <string name="loading_question">Загрузка...</string>
+    <string name="sending_question">Отправка...</string>
     <string name="loading">Загрузка...</string>
 </resources>

@@ -26,27 +26,11 @@ public class Questions extends Fragment implements View.OnClickListener {
     public ImageView Thumbnail;
     public Button opinionButton_1, opinionButton_2, opinionButton_3, opinionButton_4;
     // Variables
+    Question[] mQuestions = new Question[2];
     Question mQuestion;
     SignIn mSignIn;
 
     BackgroundConnection backgroundConnection;
-/*
-    public interface onSomeEventListener {
-        public void someEvent(SignIn s);
-    }
-
-    onSomeEventListener someEventListener;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            someEventListener = (onSomeEventListener) context;
-        } catch (ClassCastException e) {
-            Log.e(TAG, context.toString() + " must implement onSomeEventListener");
-        }
-    }
-*/
 
     public Questions() {
         // Required empty public constructor
@@ -55,12 +39,10 @@ public class Questions extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View myFragmentView = inflater.inflate(R.layout.fragment_questions, container, false);
         return myFragmentView;
@@ -83,8 +65,6 @@ public class Questions extends Fragment implements View.OnClickListener {
         opinionButton_2.setOnClickListener(this);
         opinionButton_3.setOnClickListener(this);
         opinionButton_4.setOnClickListener(this);
-        // ADS
-        //loadADS();
     }
 
     @Override
@@ -102,6 +82,7 @@ public class Questions extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         // Get Signin and check variables
+        mQuestion = mQuestions[0];
 
         if (mSignIn.clientID != null && mQuestion.question != null && !mQuestion.opinions.isEmpty()) {
             switch (view.getId()) {
@@ -139,28 +120,68 @@ public class Questions extends Fragment implements View.OnClickListener {
 
     // [START Load Question]
     void loadQuestion() {
+        // Cache
+        Boolean cache;
+        if (mQuestions[0] == null) {
+            // No cache
+            cache = false;
+            Log.e(TAG, "first");
+        } else {
+            // Cached
+            cache = true;
+            if (mQuestions[1] != null) {
+                mQuestions[0] = mQuestions[1];
+                mQuestions[1] = null;
+                updateUI(mQuestions[0]);
+                Log.e(TAG, "from cache: " + mQuestions[0].question);
+            }
+        }
+
+
+
+        // Load question from server
+        backgroundConnection = new BackgroundConnection(new QuestionsBackgroundConnectionLoad() {
+            @Override
+            public void updateUIAsync(Question question) {
+                if (mQuestions[0] == null) {
+                    mQuestions[0] = question;
+                    updateUI(mQuestions[0]);
+                    Log.e(TAG, "first question: " + mQuestions[0].question);
+                    // First cache
+                    loadQuestion();
+                } else {
+                    // Cache
+                    if (mQuestions[1] == null) {
+                        // First cache
+                        mQuestions[1] = question;
+                        Log.e(TAG, "cached: " + mQuestions[1].question);
+                    } else {
+                        // Refresh cache
+                        mQuestions[0] = mQuestions[1];
+                        mQuestions[1] = question;
+
+                        updateUI(mQuestions[0]);
+                        Log.e(TAG, "from cache: " + mQuestions[0].question);
+                        Log.e(TAG, "refresh cache: " + mQuestions[1].question);
+                    }
+                }
+            }
+        }, getActivity(), "loadQuestion", mSignIn, cache);
+
+        backgroundConnection.execute();
+    }
+
+    // Update UI retrieved question from server
+    public void updateUI(Question mQuestion) {
         // Prepare UI
         textViewQuestion.setText(R.string.loading_question);
+        Thumbnail.setImageBitmap(null);
 
         opinionButton_1.setVisibility(View.GONE);
         opinionButton_2.setVisibility(View.GONE);
         opinionButton_3.setVisibility(View.GONE);
         opinionButton_4.setVisibility(View.GONE);
 
-        // Load question from server
-        backgroundConnection = new BackgroundConnection(new QuestionsBackgroundConnectionLoad() {
-            @Override
-            public void updateUIAsync(Question question) {
-                updateUI(question);
-            }
-        }, getActivity(), "loadQuestion", mSignIn);
-
-        backgroundConnection.execute();
-    }
-
-    // Update UI retrieved question from server
-    public void updateUI(Question question) {
-        mQuestion = question;
         if (mQuestion != null) {
             // Question
             textViewQuestion.setText(mQuestion.question);
