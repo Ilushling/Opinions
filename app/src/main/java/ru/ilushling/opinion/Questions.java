@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
@@ -22,6 +23,7 @@ public class Questions extends Fragment implements View.OnClickListener {
     private AdView mAdView;
     // UI Questions
     public TextView textViewQuestion;
+    public ImageView Thumbnail;
     public Button opinionButton_1, opinionButton_2, opinionButton_3, opinionButton_4;
     // Variables
     Question mQuestion;
@@ -69,6 +71,8 @@ public class Questions extends Fragment implements View.OnClickListener {
         // UI
         // Question textview
         textViewQuestion = getActivity().findViewById(R.id.question);
+        // Thumbnail
+        Thumbnail = getActivity().findViewById(R.id.questionImage);
         // Question opinion buttons
         opinionButton_1 = getActivity().findViewById(R.id.opinionButton_1);
         opinionButton_2 = getActivity().findViewById(R.id.opinionButton_2);
@@ -89,6 +93,7 @@ public class Questions extends Fragment implements View.OnClickListener {
         // First load question
         try {
             loadQuestion();
+            loadADS();
         } catch (Exception e) {
             Log.e(TAG, "load: " + e.toString());
         }
@@ -159,6 +164,10 @@ public class Questions extends Fragment implements View.OnClickListener {
         if (mQuestion != null) {
             // Question
             textViewQuestion.setText(mQuestion.question);
+            // Thumbnail
+            if (mQuestion.thumbnail != null) {
+                Thumbnail.setImageBitmap(mQuestion.thumbnail);
+            }
 
             // Opinions
             switch (mQuestion.opinions.size()) {
@@ -218,7 +227,7 @@ public class Questions extends Fragment implements View.OnClickListener {
 
     // ADS
     void loadADS() {
-        MobileAds.initialize(getActivity(), "ca-app-pub-6738001047057973~6123392902");
+        MobileAds.initialize(getActivity(), getResources().getString(R.string.banner_ad_top_id));
         mAdView = getActivity().findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);

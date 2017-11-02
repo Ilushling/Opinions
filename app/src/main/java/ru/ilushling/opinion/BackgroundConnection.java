@@ -3,6 +3,7 @@ package ru.ilushling.opinion;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -35,7 +36,7 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     private String method, post_data;
     private SignIn mSignIn;
     private Question mQuestion;
-    String responce, logs;
+    String responce, logs, server;
 
     // Questions
     private Questions.QuestionsBackgroundConnectionLoad mQuestionsBackgroundConnectionLoad;
@@ -81,7 +82,7 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     @Override
     protected Question doInBackground(String... params) {
         // Variables
-        String server = "http://lifeschool.ddns.net";
+        server = "http://lifeschool.ddns.net";
         String connection_url = server + "/api/v1/questions";
         //Log.e(TAG, "method = " + method);
 
@@ -208,12 +209,21 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                                 mQuestion.question = jsonQuestion.getString("question");
                                 // Opinions
                                 JSONArray jsonOpinions = jsonQuestion.getJSONArray("opinions");
-                                // Opinions user opinions count
+                                // User opinions count
                                 JSONObject jsonOpinionsCount = jsonQuestion.getJSONObject("userOpinionsCount");
-                                // Parsing array of opinions
+                                // Parsing array of opinions and put user opinions to each opinion
                                 for (int j = 0; j < jsonOpinions.length(); j++) {
                                     mQuestion.opinions.add(jsonOpinions.getString(j));
                                     mQuestion.userOpinionsCount.add(Integer.valueOf(jsonOpinionsCount.getString(String.valueOf(j + 1))));
+                                }
+                                try {
+                                    // Thumbnail
+                                    if (jsonQuestion.has("thumbnail") && jsonQuestion.getString("thumbnail") != null) {
+                                        InputStream in = new java.net.URL(server + "/" + jsonQuestion.getString("thumbnail")).openStream();
+                                        mQuestion.thumbnail = BitmapFactory.decodeStream(in);
+                                    }
+                                } catch (Exception e) {
+                                    Log.e(TAG, "error load thumbnail");
                                 }
                             }
                             return mQuestion;

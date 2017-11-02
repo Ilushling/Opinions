@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Opinion</string>
+    <!-- ADS -->
+    <string name="banner_ad_top_id" translatable="false">ca-app-pub-6738001047057973~6123392902</string>
     <!-- titles -->
     <string name="achievements_title">Achievements</string>
     <string name="questions_title">Questions</string>
