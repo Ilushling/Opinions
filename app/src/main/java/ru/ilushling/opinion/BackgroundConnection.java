@@ -222,13 +222,13 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                                 try {
                                     // Thumbnail
                                     if (jsonQuestion.has("thumbnail") && jsonQuestion.getString("thumbnail") != null) {
-                                        Log.e(TAG, "loading thumnbail");
+                                        Log.e(TAG, "loading thumbnail");
                                         InputStream in = new java.net.URL(server + "/" + jsonQuestion.getString("thumbnail")).openStream();
                                         mQuestion.thumbnail = BitmapFactory.decodeStream(in);
                                         Log.e(TAG, "thumbnail loaded");
                                     }
                                 } catch (Exception e) {
-                                    Log.e(TAG, "error load thumbnail");
+                                    Log.e(TAG, "error load thumbnail: " + e);
                                 }
                             }
                             return mQuestion;

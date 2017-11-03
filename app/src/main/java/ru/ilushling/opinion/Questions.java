@@ -60,6 +60,11 @@ public class Questions extends Fragment implements View.OnClickListener {
         opinionButton_2 = getActivity().findViewById(R.id.opinionButton_2);
         opinionButton_3 = getActivity().findViewById(R.id.opinionButton_3);
         opinionButton_4 = getActivity().findViewById(R.id.opinionButton_4);
+        // Hide Buttons
+        opinionButton_1.setVisibility(View.GONE);
+        opinionButton_2.setVisibility(View.GONE);
+        opinionButton_3.setVisibility(View.GONE);
+        opinionButton_4.setVisibility(View.GONE);
         // Question opinion listeners
         opinionButton_1.setOnClickListener(this);
         opinionButton_2.setOnClickListener(this);
@@ -70,9 +75,13 @@ public class Questions extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        // First load question
+        // load question
         try {
-            loadQuestion();
+            if (mQuestions[0] != null) {
+                updateUI(mQuestions[0]);
+            } else {
+                loadQuestion();
+            }
             loadADS();
         } catch (Exception e) {
             Log.e(TAG, "load: " + e.toString());
@@ -84,31 +93,31 @@ public class Questions extends Fragment implements View.OnClickListener {
         // Get Signin and check variables
         mQuestion = mQuestions[0];
 
-        if (mSignIn.clientID != null && mQuestion.question != null && !mQuestion.opinions.isEmpty()) {
+        if (mSignIn != null && mSignIn.token != null && mQuestion.question != null && !mQuestion.opinions.isEmpty()) {
             switch (view.getId()) {
                 case R.id.opinionButton_1:
                     mQuestion.opinion = mQuestion.opinions.get(0);
                     mQuestion.userOpinionsCount.set(0, mQuestion.userOpinionsCount.get(0) + 1);
                     mQuestion.opinionID = "1";
-                    sendQuestion();
+                    sendQuestion(mQuestion);
                     break;
                 case R.id.opinionButton_2:
                     mQuestion.opinion = mQuestion.opinions.get(1);
                     mQuestion.userOpinionsCount.set(1, mQuestion.userOpinionsCount.get(1) + 1);
                     mQuestion.opinionID = "2";
-                    sendQuestion();
+                    sendQuestion(mQuestion);
                     break;
                 case R.id.opinionButton_3:
                     mQuestion.opinion = mQuestion.opinions.get(2);
                     mQuestion.userOpinionsCount.set(2, mQuestion.userOpinionsCount.get(2) + 1);
                     mQuestion.opinionID = "3";
-                    sendQuestion();
+                    sendQuestion(mQuestion);
                     break;
                 case R.id.opinionButton_4:
                     mQuestion.opinion = mQuestion.opinions.get(3);
                     mQuestion.userOpinionsCount.set(3, mQuestion.userOpinionsCount.get(3) + 1);
                     mQuestion.opinionID = "4";
-                    sendQuestion();
+                    sendQuestion(mQuestion);
                     break;
             }
         }
@@ -123,59 +132,52 @@ public class Questions extends Fragment implements View.OnClickListener {
         // Cache
         Boolean cache;
         if (mQuestions[0] == null) {
-            // Prepare UI
+            // No questions cached
+            // UI
             textViewQuestion.setText(R.string.loading_question);
-            Thumbnail.setImageBitmap(null);
 
-            opinionButton_1.setVisibility(View.GONE);
-            opinionButton_2.setVisibility(View.GONE);
-            opinionButton_3.setVisibility(View.GONE);
-            opinionButton_4.setVisibility(View.GONE);
-            // No cache
             cache = false;
-            Log.e(TAG, "first");
         } else {
-            // Cached
+            // One question cached
             cache = true;
             if (mQuestions[1] != null) {
+                // Second question cached
                 mQuestions[0] = mQuestions[1];
                 mQuestions[1] = null;
                 updateUI(mQuestions[0]);
-                Log.e(TAG, "from cache: " + mQuestions[0].question);
+                //Log.e(TAG, "from cache: " + mQuestions[0].question);
             }
         }
-
 
         // Load question from server
         backgroundConnection = new BackgroundConnection(new QuestionsBackgroundConnectionLoad() {
             @Override
             public void updateUIAsync(Question question) {
                 if (mQuestions[0] == null) {
-                    mQuestions[0] = question;
-                    updateUI(mQuestions[0]);
-
                     if (question != null) {
-                        Log.e(TAG, "first question: " + mQuestions[0].question);
-                        // First cache
+                        // Cache one question
+                        mQuestions[0] = question;
+                        updateUI(mQuestions[0]);
+                        // Second cache
                         loadQuestion();
                     }
                 } else {
-                    // Cache
                     if (mQuestions[1] == null) {
-                        // Cache
                         if (question != null) {
+                            // Cache second question
                             mQuestions[1] = question;
                             Log.e(TAG, "cached: " + mQuestions[1].question);
                         }
                     } else {
-                        /* i dont know can delete this
-                        // Refresh cache
-                        mQuestions[0] = mQuestions[1];
-                        mQuestions[1] = question;
-
-                        updateUI(mQuestions[0]);
-                        Log.e(TAG, "from cache: " + mQuestions[0].question);
-                        Log.e(TAG, "refresh cache: " + mQuestions[1].question);
+                        // Cache third question
+                        /*
+                        if (mQuestions[2] == null) {
+                            if (question != null) {
+                                // Cache third question
+                                mQuestions[2] = question;
+                                Log.e(TAG, "cached: " + mQuestions[2].question);
+                            }
+                        }
                         */
                     }
                 }
@@ -188,6 +190,13 @@ public class Questions extends Fragment implements View.OnClickListener {
     // Update UI retrieved question from server
     public void updateUI(Question mQuestion) {
         if (mQuestion != null) {
+            // Prepare UI
+            Thumbnail.setImageBitmap(null);
+
+            opinionButton_1.setVisibility(View.GONE);
+            opinionButton_2.setVisibility(View.GONE);
+            opinionButton_3.setVisibility(View.GONE);
+            opinionButton_4.setVisibility(View.GONE);
             // Question
             textViewQuestion.setText(mQuestion.question);
             // Thumbnail
@@ -241,7 +250,7 @@ public class Questions extends Fragment implements View.OnClickListener {
     }
 
     // Send Question
-    void sendQuestion() {
+    void sendQuestion(Question mQuestion) {
         BackgroundConnection backgroundConnection = new BackgroundConnection(new QuestionsBackgroundConnectionSend() {
             @Override
             public void loadNextQuestion() {
@@ -249,6 +258,11 @@ public class Questions extends Fragment implements View.OnClickListener {
             }
         }, getContext(), "sendQuestion", mSignIn, mQuestion);
         backgroundConnection.execute();
+        mQuestions[0] = null;
+        if (mQuestions[1] != null) {
+            mQuestions[0] = mQuestions[1];
+            mQuestions[1] = null;
+        }
     }
 
     // ADS
