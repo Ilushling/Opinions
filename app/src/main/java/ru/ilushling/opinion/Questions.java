@@ -123,6 +123,14 @@ public class Questions extends Fragment implements View.OnClickListener {
         // Cache
         Boolean cache;
         if (mQuestions[0] == null) {
+            // Prepare UI
+            textViewQuestion.setText(R.string.loading_question);
+            Thumbnail.setImageBitmap(null);
+
+            opinionButton_1.setVisibility(View.GONE);
+            opinionButton_2.setVisibility(View.GONE);
+            opinionButton_3.setVisibility(View.GONE);
+            opinionButton_4.setVisibility(View.GONE);
             // No cache
             cache = false;
             Log.e(TAG, "first");
@@ -138,7 +146,6 @@ public class Questions extends Fragment implements View.OnClickListener {
         }
 
 
-
         // Load question from server
         backgroundConnection = new BackgroundConnection(new QuestionsBackgroundConnectionLoad() {
             @Override
@@ -146,16 +153,22 @@ public class Questions extends Fragment implements View.OnClickListener {
                 if (mQuestions[0] == null) {
                     mQuestions[0] = question;
                     updateUI(mQuestions[0]);
-                    Log.e(TAG, "first question: " + mQuestions[0].question);
-                    // First cache
-                    loadQuestion();
+
+                    if (question != null) {
+                        Log.e(TAG, "first question: " + mQuestions[0].question);
+                        // First cache
+                        loadQuestion();
+                    }
                 } else {
                     // Cache
                     if (mQuestions[1] == null) {
-                        // First cache
-                        mQuestions[1] = question;
-                        Log.e(TAG, "cached: " + mQuestions[1].question);
+                        // Cache
+                        if (question != null) {
+                            mQuestions[1] = question;
+                            Log.e(TAG, "cached: " + mQuestions[1].question);
+                        }
                     } else {
+                        /* i dont know can delete this
                         // Refresh cache
                         mQuestions[0] = mQuestions[1];
                         mQuestions[1] = question;
@@ -163,6 +176,7 @@ public class Questions extends Fragment implements View.OnClickListener {
                         updateUI(mQuestions[0]);
                         Log.e(TAG, "from cache: " + mQuestions[0].question);
                         Log.e(TAG, "refresh cache: " + mQuestions[1].question);
+                        */
                     }
                 }
             }
@@ -173,15 +187,6 @@ public class Questions extends Fragment implements View.OnClickListener {
 
     // Update UI retrieved question from server
     public void updateUI(Question mQuestion) {
-        // Prepare UI
-        textViewQuestion.setText(R.string.loading_question);
-        Thumbnail.setImageBitmap(null);
-
-        opinionButton_1.setVisibility(View.GONE);
-        opinionButton_2.setVisibility(View.GONE);
-        opinionButton_3.setVisibility(View.GONE);
-        opinionButton_4.setVisibility(View.GONE);
-
         if (mQuestion != null) {
             // Question
             textViewQuestion.setText(mQuestion.question);
