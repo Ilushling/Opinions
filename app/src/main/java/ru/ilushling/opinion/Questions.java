@@ -78,9 +78,12 @@ public class Questions extends Fragment implements View.OnClickListener {
         // load question
         try {
             if (mQuestions[0] != null) {
+                // Cached question
                 updateUI(mQuestions[0]);
+                loadQuestion("cache");
             } else {
-                loadQuestion();
+                // First question
+                loadQuestion("first");
             }
             loadADS();
         } catch (Exception e) {
@@ -128,25 +131,39 @@ public class Questions extends Fragment implements View.OnClickListener {
     }
 
     // [START Load Question]
-    void loadQuestion() {
+    void loadQuestion(String method) {
         // Cache
-        Boolean cache;
-        if (mQuestions[0] == null) {
-            // No questions cached
-            // UI
-            textViewQuestion.setText(R.string.loading_question);
+        Boolean cache = false;
 
-            cache = false;
-        } else {
-            // One question cached
-            cache = true;
+        // FIRST
+        if (method == "first") {
+            if (mQuestions[0] == null) {
+                // No questions cached
+                // UI
+                updateUI("loading");
+                cache = false;
+            }
+        }
+        if (method == "next") {
+            mQuestions[0] = null;
             if (mQuestions[1] != null) {
-                // Second question cached
+                Log.e(TAG, "from cache: " + mQuestions[1].question);
+
                 mQuestions[0] = mQuestions[1];
                 mQuestions[1] = null;
                 updateUI(mQuestions[0]);
-                //Log.e(TAG, "from cache: " + mQuestions[0].question);
+
+                cache = true;
+            } else {
+                // No cached questions
+                updateUI("noQuestions");
+                Log.e(TAG, "No cached questions");
+                return;
             }
+        }
+
+        if (method == "cache") {
+            cache = true;
         }
 
         // Load question from server
@@ -155,21 +172,29 @@ public class Questions extends Fragment implements View.OnClickListener {
             public void updateUIAsync(Question question) {
                 if (mQuestions[0] == null) {
                     if (question != null) {
-                        // Cache one question
+                        // First loaded
                         mQuestions[0] = question;
                         updateUI(mQuestions[0]);
-                        // Second cache
-                        loadQuestion();
+                        Log.e(TAG, "First question loaded");
+                        // load second to cache
+                        loadQuestion("cache");
+                    } else {
+                        Log.e(TAG, "First not loaded");
+                        updateUI("noQuestions");
                     }
                 } else {
                     if (mQuestions[1] == null) {
-                        if (question != null) {
-                            // Cache second question
+                        if (question != null && question.question != mQuestions[0].question) {
+                            // Cache second
                             mQuestions[1] = question;
                             Log.e(TAG, "cached: " + mQuestions[1].question);
+                        } else {
+                            // Second not loaded or same as first
+                            Log.e(TAG, "Second not loaded");
+                            mQuestions[1] = null;
                         }
                     } else {
-                        // Cache third question
+                        // Cache third
                         /*
                         if (mQuestions[2] == null) {
                             if (question != null) {
@@ -245,6 +270,28 @@ public class Questions extends Fragment implements View.OnClickListener {
     }
     // [End load question]
 
+    void updateUI(String method) {
+        switch (method) {
+            case "loading":
+                Thumbnail.setImageBitmap(null);
+                textViewQuestion.setText(R.string.loading_question);
+                opinionButton_1.setVisibility(View.GONE);
+                opinionButton_2.setVisibility(View.GONE);
+                opinionButton_3.setVisibility(View.GONE);
+                opinionButton_4.setVisibility(View.GONE);
+                break;
+            case "noQuestions":
+                // No Questions
+                Thumbnail.setImageBitmap(null);
+                textViewQuestion.setText(R.string.no_questions);
+                opinionButton_1.setVisibility(View.GONE);
+                opinionButton_2.setVisibility(View.GONE);
+                opinionButton_3.setVisibility(View.GONE);
+                opinionButton_4.setVisibility(View.GONE);
+                break;
+        }
+    }
+
     public interface QuestionsBackgroundConnectionSend {
         void loadNextQuestion();
     }
@@ -254,15 +301,10 @@ public class Questions extends Fragment implements View.OnClickListener {
         BackgroundConnection backgroundConnection = new BackgroundConnection(new QuestionsBackgroundConnectionSend() {
             @Override
             public void loadNextQuestion() {
-                loadQuestion();
+                loadQuestion("next");
             }
         }, getContext(), "sendQuestion", mSignIn, mQuestion);
         backgroundConnection.execute();
-        mQuestions[0] = null;
-        if (mQuestions[1] != null) {
-            mQuestions[0] = mQuestions[1];
-            mQuestions[1] = null;
-        }
     }
 
     // ADS

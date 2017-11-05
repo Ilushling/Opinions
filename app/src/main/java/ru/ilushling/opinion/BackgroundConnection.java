@@ -277,7 +277,7 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                     pDialog.setCancelable(false);
                     pDialog.show();
                 } else {
-                    Log.e(TAG, "caching...");
+                    //Log.e(TAG, "caching...");
                 }
                 break;
             case "sendQuestion":
@@ -304,7 +304,7 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                     if (!cache) {
                         pDialog.dismiss();
                     } else {
-                        Log.e(TAG, "cached");
+                        //Log.e(TAG, "cached");
                     }
 
                     if (question != null && question.question != "") {
