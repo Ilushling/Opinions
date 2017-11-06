@@ -84,7 +84,8 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     @Override
     protected Question doInBackground(String... params) {
         // Variables
-        server = "http://lifeschool.ddns.net";
+        //server = "http://lifeschool.ddns.net";
+        server = "http://ilushling.cloudns.cc";
         String connection_url = server + "/api/v1/questions";
         //Log.e(TAG, "method = " + method);
 
