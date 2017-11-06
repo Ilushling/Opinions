@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
@@ -19,6 +21,7 @@ public class Profile extends Fragment implements View.OnClickListener {
     // UI
     public Button mSignInButton;
     public TextView mStatus;
+    RadioButton radioRU, radioEN;
 
     // Signing
     SignIn mSignIn;
@@ -71,11 +74,34 @@ public class Profile extends Fragment implements View.OnClickListener {
         mSignInButton.setOnClickListener(this);
         mSignInButton.setEnabled(true);
 
+        // Language
+        RadioGroup radioGroup = getActivity().findViewById(R.id.language);
+        radioRU = getActivity().findViewById(R.id.RU);
+        radioEN = getActivity().findViewById(R.id.EN);
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.RU:
+                        mSignIn.language = "RU";
+                        break;
+                    case R.id.EN:
+                        mSignIn.language = "EN";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        // END language
+
         if (mSignIn != null) {
             updateUI(MainActivity.SIGNED_IN);
         } else {
             updateUI(MainActivity.SIGNED_OUT);
         }
+
 
         //mGoogleSignInActivity = new GoogleSignInActivity(getActivity());
     }
@@ -119,7 +145,7 @@ public class Profile extends Fragment implements View.OnClickListener {
                 }
                 break;
             //case R.id.revoke_access_button:
-                //revokeAccess();
+            //revokeAccess();
             //break;
         }
     }

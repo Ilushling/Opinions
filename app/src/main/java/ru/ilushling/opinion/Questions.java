@@ -184,7 +184,7 @@ public class Questions extends Fragment implements View.OnClickListener {
                     }
                 } else {
                     if (mQuestions[1] == null) {
-                        if (question != null && question.question != mQuestions[0].question) {
+                        if (question != null && question.questionID != mQuestions[0].questionID) {
                             // Cache second
                             mQuestions[1] = question;
                             Log.e(TAG, "cached: " + mQuestions[1].question);

@@ -36,6 +36,7 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     private String method, post_data;
     private SignIn mSignIn;
     private Question mQuestion;
+    // Connection
     String responce, logs, server;
     Boolean cache = false;
 
@@ -143,7 +144,8 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                 case "loadQuestion":
                     post_data = URLEncoder.encode("method", "UTF-8") + "=" + URLEncoder.encode(method, "UTF-8") + "&" +
                             URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(mSignIn.token, "UTF-8") + "&" +
-                            URLEncoder.encode("cache", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(cache), "UTF-8");
+                            URLEncoder.encode("cache", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(cache), "UTF-8") + "&" +
+                            URLEncoder.encode("language", "UTF-8") + "=" + URLEncoder.encode(mSignIn.language, "UTF-8");
                     break;
                 case "loadStatistic":
                     post_data = URLEncoder.encode("method", "UTF-8") + "=" + URLEncoder.encode(method, "UTF-8") + "&" +
