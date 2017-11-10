@@ -13,6 +13,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
+import java.util.Locale;
 
 
 public class Profile extends Fragment implements View.OnClickListener {
@@ -84,10 +85,20 @@ public class Profile extends Fragment implements View.OnClickListener {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.RU:
-                        mSignIn.language = "RU";
+                        if (mSignIn != null) {
+                            mSignIn.language = "RU";
+                        } else {
+                            radioRU.setChecked(false);
+                            radioEN.setChecked(false);
+                        }
                         break;
                     case R.id.EN:
-                        mSignIn.language = "EN";
+                        if (mSignIn != null) {
+                            mSignIn.language = "EN";
+                        } else {
+                            radioRU.setChecked(false);
+                            radioEN.setChecked(false);
+                        }
                         break;
                     default:
                         break;
@@ -124,7 +135,6 @@ public class Profile extends Fragment implements View.OnClickListener {
             Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
             childFragmentManager.setAccessible(true);
             childFragmentManager.set(this, null);
-
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
@@ -155,6 +165,7 @@ public class Profile extends Fragment implements View.OnClickListener {
     }
 
     void signOut() {
+        mSignIn = null;
         profileEventListener.signOutEvent();
     }
 
@@ -167,6 +178,18 @@ public class Profile extends Fragment implements View.OnClickListener {
                 mSignInButton.setText(R.string.sign_out);
                 // Text
                 mStatus.setText(mSignIn.name);
+                // Language
+                Log.e(TAG, Locale.getDefault().getLanguage());
+                if (mSignIn != null) {
+                    if (Locale.getDefault().getLanguage().equals("ru") && mSignIn.language == null) {
+                        mSignIn.language = "RU";
+                        radioRU.setChecked(true);
+                    } else {
+                        mSignIn.language = "EN";
+                        radioEN.setChecked(true);
+                    }
+                }
+                // END language
             } else {
                 // Signed Out
                 // Buttons
@@ -177,5 +200,9 @@ public class Profile extends Fragment implements View.OnClickListener {
         } else {
             Log.e(TAG, "UI Denined");
         }
+    }
+
+    String getLanguage() {
+        return mSignIn.language;
     }
 }

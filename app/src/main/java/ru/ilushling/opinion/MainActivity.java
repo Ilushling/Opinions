@@ -20,8 +20,6 @@ import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import java.util.Locale;
-
 
 public class MainActivity extends FragmentActivity implements Profile.onProfileEventListener, GoogleApiClient.OnConnectionFailedListener {
 
@@ -347,19 +345,8 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
 
         Profile.updateUI(mSignInProgress);
 
-
-        // Language
-        Log.e(TAG, Locale.getDefault().getLanguage());
-        if (Locale.getDefault().getLanguage().equals("ru") && mSignIn.language == null) {
-            mSignIn.language = "RU";
-            Profile.radioRU.setChecked(true);
-        } else {
-            mSignIn.language = "EN";
-            Profile.radioEN.setChecked(true);
-        }
-        // END language
-
         if (signedIn) {
+            mSignIn.language = Profile.getLanguage();
             // Send signIn to server
             BackgroundConnection backgroundConnection = new BackgroundConnection(this, "signIn", mSignIn);
             backgroundConnection.execute();
