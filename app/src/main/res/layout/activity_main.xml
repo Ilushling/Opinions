@@ -52,16 +52,13 @@
             <android.support.design.widget.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:tag="questions"
                 android:text="@string/questions_title"/>
 
             <android.support.design.widget.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/achievements_title"/>
-
-            <android.support.design.widget.TabItem
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:tag="profile"
                 android:text="@string/profile_title"/>
         </android.support.design.widget.TabLayout>
     </android.support.v7.widget.CardView>

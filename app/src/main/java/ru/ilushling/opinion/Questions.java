@@ -77,6 +77,10 @@ public class Questions extends Fragment implements View.OnClickListener {
         super.onStart();
         // load question
         try {
+            // Clear cache
+            mQuestions[0] = null;
+            mQuestions[1] = null;
+
             if (mQuestions[0] != null) {
                 // Cached question
                 updateUI(mQuestions[0]);
@@ -85,6 +89,7 @@ public class Questions extends Fragment implements View.OnClickListener {
                 // First question
                 loadQuestion("first");
             }
+
             loadADS();
         } catch (Exception e) {
             Log.e(TAG, "load: " + e.toString());

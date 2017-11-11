@@ -73,8 +73,9 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                int position = tab.getPosition();
-                changeFragment(position);
+                int tabNow = tab.getPosition();
+                changeFragment(tabNow);
+                Log.e(TAG, tabNow + "");
             }
 
             @Override
@@ -88,15 +89,15 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
     }
 
     // [START change fragment]
-    void changeFragment(int position) {
-        switch (position) {
+    void changeFragment(int tabNow) {
+        switch (tabNow) {
             case 0:
                 toQuestions();
                 break;
-            case 1:
+            case 2:
                 toAchievements();
                 break;
-            case 2:
+            case 1:
                 toProfile();
                 break;
         }
@@ -113,7 +114,7 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
 
     void toAchievements() {
         // Change menu
-        tabLayout.getTabAt(1).select();
+        tabLayout.getTabAt(2).select();
         // Change fragment
         ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, Achievements);
@@ -122,7 +123,7 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
 
     void toProfile() {
         // Change menu
-        tabLayout.getTabAt(2).select();
+        tabLayout.getTabAt(1).select();
         // Change fragment
         ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, Profile);
