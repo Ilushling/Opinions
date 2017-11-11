@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_weight="1"
-        android:text="@string/languageOfQuestions"
+        android:text="@string/language_of_questions"
         android:textColor="@color/fontColor"
         app:layout_constraintBottom_toTopOf="@+id/language"
         app:layout_constraintEnd_toEndOf="@+id/language"

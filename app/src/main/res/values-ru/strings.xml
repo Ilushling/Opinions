@@ -22,5 +22,6 @@
     <string name="loading_question">Загрузка...</string>
     <string name="sending_question">Отправка...</string>
     <string name="loading">Загрузка...</string>
-    <string name="languageOfQuestions">Язык вопросов</string>
+    <string name="language_of_questions">Язык вопросов</string>
+    <string name="not_authorize">Вы не авторизаваны</string>
 </resources>

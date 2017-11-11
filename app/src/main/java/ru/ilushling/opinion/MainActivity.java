@@ -2,12 +2,14 @@ package ru.ilushling.opinion;
 
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
@@ -58,6 +60,8 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
         // Obtain the FirebaseAnalytics instance.
         //mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
+        mSignInProgress = SIGNED_OUT;
+
         mSignIn = new SignIn();
 
         mGoogleApiClient = buildGoogleApiClient();
@@ -75,7 +79,6 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
             public void onTabSelected(TabLayout.Tab tab) {
                 int tabNow = tab.getPosition();
                 changeFragment(tabNow);
-                Log.e(TAG, tabNow + "");
             }
 
             @Override
@@ -92,7 +95,23 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
     void changeFragment(int tabNow) {
         switch (tabNow) {
             case 0:
-                toQuestions();
+                if (mSignInProgress == SIGNED_IN) {
+                    toQuestions();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.not_authorize)
+                            .setMessage(R.string.not_authorize)
+                            .setCancelable(false)
+                            .setNegativeButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                    tabLayout.getTabAt(1).select();
+                }
                 break;
             case 2:
                 toAchievements();

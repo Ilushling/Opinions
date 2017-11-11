@@ -23,5 +23,6 @@
     <string name="loading_question">Loading…</string>
     <string name="sending_question">Sending...</string>
     <string name="loading">Loading...</string>
-    <string name="languageOfQuestions">Language of questions</string>
+    <string name="language_of_questions">Language of questions</string>
+    <string name="not_authorize">Unauthorized</string>
 </resources>
