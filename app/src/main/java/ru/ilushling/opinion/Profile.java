@@ -7,12 +7,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -23,6 +27,7 @@ public class Profile extends Fragment implements View.OnClickListener {
     public Button mSignInButton;
     public TextView mStatus;
     RadioButton radioRU, radioEN;
+    ListView lvMain;
 
     // Signing
     SignIn mSignIn;
@@ -66,8 +71,10 @@ public class Profile extends Fragment implements View.OnClickListener {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        // находим список
+        lvMain = getActivity().findViewById(R.id.lvMain);
+
         // Sign In
-        // Get references to all of the UI views
         mSignInButton = getActivity().findViewById(R.id.sign_in_button);
         mStatus = getActivity().findViewById(R.id.statuslabel);
 
@@ -169,27 +176,24 @@ public class Profile extends Fragment implements View.OnClickListener {
         profileEventListener.signOutEvent();
     }
 
-
     public void updateUI(int signedIn) {
         if (mSignInButton != null) {
             if (signedIn == 0 && mSignIn != null) {
-                // Update the UI to reflect that the user is signed out.
-                // Buttons
+                // Signed In
                 mSignInButton.setText(R.string.sign_out);
-                // Text
                 mStatus.setText(mSignIn.name);
+
                 // Language
                 Log.e(TAG, Locale.getDefault().getLanguage());
-                if (mSignIn != null) {
-                    if (Locale.getDefault().getLanguage().equals("ru") && mSignIn.language == null) {
-                        mSignIn.language = "RU";
-                        radioRU.setChecked(true);
-                    } else {
-                        mSignIn.language = "EN";
-                        radioEN.setChecked(true);
-                    }
+                if (Locale.getDefault().getLanguage().equals("ru") && mSignIn.language == null) {
+                    mSignIn.language = "RU";
+                    radioRU.setChecked(true);
+                } else {
+                    mSignIn.language = "EN";
+                    radioEN.setChecked(true);
                 }
-                // END language
+
+                updateQuestionsHistory();
             } else {
                 // Signed Out
                 // Buttons
@@ -200,6 +204,32 @@ public class Profile extends Fragment implements View.OnClickListener {
         } else {
             Log.e(TAG, "UI Denined");
         }
+    }
+
+    public interface QuestionsBackgroundConnectionQuestionsHistory {
+        void loadQuestionQuestionsHistory(List<Question> questions);
+    }
+
+    // Update Questions History
+    public void updateQuestionsHistory() {
+        BackgroundConnection backgroundConnection = new BackgroundConnection(new QuestionsBackgroundConnectionQuestionsHistory() {
+            @Override
+            public void loadQuestionQuestionsHistory(List<Question> questions) {
+                List<String> questionsList = new ArrayList<String>();
+                List<String> opinionsList = new ArrayList<String>();
+                for (int i = 0; i < questions.size(); i++) {
+                    if (questions.get(i) != null) {
+                        questionsList.add(questions.get(i).question);
+                        opinionsList.add(questions.get(i).opinion);
+                    }
+                }
+                // создаем адаптер
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.questions_history_item, questionsList);
+                // присваиваем адаптер списку
+                lvMain.setAdapter(adapter);
+            }
+        }, getActivity(), "loadQuestionsHistory", mSignIn, 0);
+        backgroundConnection.execute();
     }
 
     String getLanguage() {

@@ -22,9 +22,11 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class BackgroundConnection extends AsyncTask<String, String, Question> {
+public class BackgroundConnection extends AsyncTask<String, String, List<Question>> {
 
     // Common
     private String TAG = "Background";
@@ -36,15 +38,19 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     private String method, post_data;
     private SignIn mSignIn;
     private Question mQuestion;
+    private List<Question> mQuestions = new ArrayList<Question>();
     // Connection
     String responce, logs, server;
     Boolean cache = false;
+    int loadQuestionsHistoryCount = 0;
 
     // Questions
     private Questions.QuestionsBackgroundConnectionLoad mQuestionsBackgroundConnectionLoad;
     private Questions.QuestionsBackgroundConnectionSend mQuestionsBackgroundConnectionSend;
     // Achivements
     private Achievements.BackgroundConnectionAchievementsLoad mBackgroundConnectionAchievementsLoad;
+    // Profile
+    private Profile.QuestionsBackgroundConnectionQuestionsHistory mQuestionsBackgroundConnectionQuestionsHistory;
 
     // Load or SignIn
     public BackgroundConnection(Context context, String method, SignIn mSignIn) {
@@ -81,9 +87,19 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
         this.mSignIn = mSignIn;
     }
 
+    // Profile
+    // QuestionsHistory
+    public BackgroundConnection(Profile.QuestionsBackgroundConnectionQuestionsHistory backgroundConnectionLoad, Context context, String method, SignIn mSignIn, int loadQuestionsHistoryCount) {
+        this.mQuestionsBackgroundConnectionQuestionsHistory = backgroundConnectionLoad;
+        this.context = context;
+        this.method = method;
+        this.mSignIn = mSignIn;
+        this.loadQuestionsHistoryCount = loadQuestionsHistoryCount;
+    }
+
 
     @Override
-    protected Question doInBackground(String... params) {
+    protected List<Question> doInBackground(String... params) {
         // Variables
         //server = "http://lifeschool.ddns.net";
         server = "http://ilushling.cloudns.cc";
@@ -106,16 +122,17 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                 switch (method) {
                     case "signIn":
                         receive();
-                        // Disconnect
                         httpURLConnection.disconnect();
-                        return mQuestion;
+                        return null;
                     case "loadQuestion":
-                        mQuestion = receive();
-                        // Disconnect
+                        mQuestions = receive();
                         httpURLConnection.disconnect();
-                        return mQuestion;
+                        return mQuestions;
+                    case "loadQuestionsHistory":
+                        mQuestions = receive();
+                        httpURLConnection.disconnect();
+                        return mQuestions;
                     case "sendQuestion":
-                        Log.e(TAG, "sending...");
                         receive();
                         httpURLConnection.disconnect();
                         break;
@@ -147,9 +164,11 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                             URLEncoder.encode("cache", "UTF-8") + "=" + URLEncoder.encode(String.valueOf(cache), "UTF-8") + "&" +
                             URLEncoder.encode("language", "UTF-8") + "=" + URLEncoder.encode(mSignIn.language, "UTF-8");
                     break;
-                case "loadStatistic":
+                case "loadQuestionsHistory":
                     post_data = URLEncoder.encode("method", "UTF-8") + "=" + URLEncoder.encode(method, "UTF-8") + "&" +
-                            URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(mSignIn.token, "UTF-8");
+                            URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(mSignIn.token, "UTF-8") + "&" +
+                            URLEncoder.encode("loadQuestionsCount", "UTF-8") + "=" + URLEncoder.encode("" + loadQuestionsHistoryCount, "UTF-8") + "&" +
+                            URLEncoder.encode("loadQuestionsStep", "UTF-8") + "=" + URLEncoder.encode("2", "UTF-8");
                     break;
                 case "sendQuestion":
                     if (mQuestion.question != null && mQuestion.opinion != null) {
@@ -178,12 +197,14 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     // [END Send]
 
     // [START Receive]
-    private Question receive() {
+    private List<Question> receive() {
         try {
             InputStream inputStream = httpURLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 
-            String line = "";
+            String line, jsonString;
+            JSONObject jsonObject;
+            JSONArray jsonQuestions;
             responce = "";
 
             while ((line = bufferedReader.readLine()) != null) {
@@ -202,55 +223,65 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                             break;
                         case "loadQuestion":
                             // Parsing JSON
-                            String jsonString = responce;
-                            JSONObject jsonObject = new JSONObject(jsonString);
+                            jsonString = responce;
+                            jsonObject = new JSONObject(jsonString);
                             // Prepare mQuestion object for receive
-                            mQuestion = new Question();
-                            JSONArray jsonQuestions = jsonObject.getJSONArray("questions");
+                            jsonQuestions = jsonObject.getJSONArray("questions");
                             for (int i = 0; i < jsonQuestions.length(); i++) {
                                 JSONObject jsonQuestion = jsonQuestions.getJSONObject(i);
+                                mQuestions.add(new Question());
                                 // ID question
-                                mQuestion.questionID = jsonQuestion.getString("questionID");
+                                mQuestions.get(i).questionID = jsonQuestion.getString("questionID");
                                 // Question
-                                mQuestion.question = jsonQuestion.getString("question");
+                                mQuestions.get(i).question = jsonQuestion.getString("question");
                                 // Opinions
                                 JSONArray jsonOpinions = jsonQuestion.getJSONArray("opinions");
                                 // User opinions count
                                 JSONObject jsonOpinionsCount = jsonQuestion.getJSONObject("userOpinionsCount");
                                 // Parsing array of opinions and put user opinions to each opinion
                                 for (int j = 0; j < jsonOpinions.length(); j++) {
-                                    mQuestion.opinions.add(jsonOpinions.getString(j));
-                                    mQuestion.userOpinionsCount.add(Integer.valueOf(jsonOpinionsCount.getString(String.valueOf(j + 1))));
+                                    mQuestions.get(i).opinions.add(jsonOpinions.getString(j));
+                                    mQuestions.get(i).userOpinionsCount.add(Integer.valueOf(jsonOpinionsCount.getString(String.valueOf(j + 1))));
                                 }
                                 try {
                                     // Thumbnail
                                     if (jsonQuestion.has("thumbnail") && jsonQuestion.getString("thumbnail") != null) {
                                         Log.e(TAG, "loading thumbnail");
                                         InputStream in = new java.net.URL(server + "/" + jsonQuestion.getString("thumbnail")).openStream();
-                                        mQuestion.thumbnail = BitmapFactory.decodeStream(in);
+                                        mQuestions.get(i).thumbnail = BitmapFactory.decodeStream(in);
                                         Log.e(TAG, "thumbnail loaded");
                                     }
                                 } catch (Exception e) {
                                     Log.e(TAG, "error load thumbnail: " + e);
                                 }
                             }
-                            return mQuestion;
+                            return mQuestions;
                         case "sendQuestion":
                             Log.e(TAG, "sendQuestion: " + responce);
                             break;
-                        case "loadStatistic":
+                        case "loadQuestionsHistory":
+                            // Parsing JSON
+                            jsonString = responce;
+                            jsonObject = new JSONObject(jsonString);
                             // Prepare mQuestion object for receive
-                            mQuestion = new Question();
-                            // / Parsing JSON
-                            jsonObject = new JSONObject(responce);
-                            // Getting (Object)
-                            // ID question
-                            mQuestion.questionID = jsonObject.getString("questionID");
-                            // Question
-                            mQuestion.question = jsonObject.getString("question");
-                            // Opinions
-                            mQuestion.opinion = jsonObject.getString("opinion");
-                            break;
+                            jsonQuestions = jsonObject.getJSONArray("questions");
+
+                            for (int i = 0; i < jsonQuestions.length(); i++) {
+                                JSONObject jsonQuestion = jsonQuestions.getJSONObject(i);
+                                mQuestions.add(new Question());
+                                // ID question
+                                Log.e(TAG, "STEP 0");
+                                mQuestions.get(i).questionID = jsonQuestion.getString("questionID");
+                                Log.e(TAG, "STEP 1");
+                                // Question
+                                mQuestions.get(i).question = jsonQuestion.getString("question");
+
+                                Log.e(TAG, "STEP 2");
+                                // Question
+                                mQuestions.get(i).opinion = jsonQuestion.getString("opinion");
+                                Log.e(TAG, "STEP 3");
+                            }
+                            return mQuestions;
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "Receive JSON: " + e.toString());
@@ -295,7 +326,7 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
     }
 
     @Override
-    protected void onPostExecute(Question question) {
+    protected void onPostExecute(List<Question> question) {
         super.onPostExecute(question);
         // update UI
         try {
@@ -310,8 +341,8 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                         //Log.e(TAG, "cached");
                     }
 
-                    if (question != null && question.question != "") {
-                        mQuestionsBackgroundConnectionLoad.updateUIAsync(question);
+                    if (question != null && question.get(0).question != "") {
+                        mQuestionsBackgroundConnectionLoad.updateUIAsync(question.get(0));
                     } else {
                         mQuestionsBackgroundConnectionLoad.updateUIAsync(null);
                     }
@@ -339,8 +370,8 @@ public class BackgroundConnection extends AsyncTask<String, String, Question> {
                     AlertDialog alert = builder.create();
                     alert.show();
                     break;
-                case "loadStatistic":
-                    //mBackgroundConnectionLoad.updateUIAsync(question);
+                case "loadQuestionsHistory":
+                    mQuestionsBackgroundConnectionQuestionsHistory.loadQuestionQuestionsHistory(question);
                     break;
             }
         } catch (ClassCastException e) {

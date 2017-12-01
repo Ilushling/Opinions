@@ -4,12 +4,4 @@
                                              android:layout_height="match_parent"
                                              tools:context="ru.ilushling.opinion.QuestionStatistic">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="0dp"
-        android:layout_height="495dp"
-        android:text="Statistics"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp"/>
-
 </android.support.constraint.ConstraintLayout>

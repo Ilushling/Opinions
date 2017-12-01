@@ -40,6 +40,7 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
     public FragmentTransaction ft;
     // Fragments
     Questions Questions;
+    QuestionStatistic QuestionStatistic;
     Achievements Achievements;
     Profile Profile;
     // Keep variables
@@ -53,6 +54,7 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
 
         // Fragments
         Questions = new Questions();
+        QuestionStatistic = new QuestionStatistic();
         Achievements = new Achievements();
         Profile = new Profile();
         //mGoogleSignInActivity = new GoogleSignInActivity(this);
@@ -71,6 +73,12 @@ public class MainActivity extends FragmentActivity implements Profile.onProfileE
         tabLayout = findViewById(R.id.tabLayout);
         // Start from [fragment]
         toProfile();
+        //ft = getSupportFragmentManager().beginTransaction();
+        //ft.replace(R.id.fragment_container, QuestionStatistic);
+        //ft.commit();
+
+
+
         //mGoogleSignInActivity = new GoogleSignInActivity(getApplicationContext());
 
         // Menu Listener

@@ -44,8 +44,8 @@ public class Questions extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View myFragmentView = inflater.inflate(R.layout.fragment_questions, container, false);
-        return myFragmentView;
+        View view = inflater.inflate(R.layout.fragment_questions, container, false);
+        return view;
     }
 
     @Override
