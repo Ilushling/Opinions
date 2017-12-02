@@ -25,7 +25,7 @@ android {
         applicationId "ru.ilushling.opinion"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 26
+        versionCode 28
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }

@@ -168,7 +168,7 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
                     post_data = URLEncoder.encode("method", "UTF-8") + "=" + URLEncoder.encode(method, "UTF-8") + "&" +
                             URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(mSignIn.token, "UTF-8") + "&" +
                             URLEncoder.encode("loadQuestionsCount", "UTF-8") + "=" + URLEncoder.encode("" + loadQuestionsHistoryCount, "UTF-8") + "&" +
-                            URLEncoder.encode("loadQuestionsStep", "UTF-8") + "=" + URLEncoder.encode("10", "UTF-8");
+                            URLEncoder.encode("loadQuestionsStep", "UTF-8") + "=" + URLEncoder.encode("150", "UTF-8");
                     break;
                 case "sendQuestion":
                     if (mQuestion.question != null && mQuestion.opinion != null) {
