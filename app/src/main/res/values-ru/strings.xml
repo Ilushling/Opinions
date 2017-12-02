@@ -24,4 +24,5 @@
     <string name="loading">Загрузка...</string>
     <string name="language_of_questions">Язык вопросов</string>
     <string name="not_authorize">Вы не авторизаваны</string>
+    <string name="questions_history">История вопросов</string>
 </resources>

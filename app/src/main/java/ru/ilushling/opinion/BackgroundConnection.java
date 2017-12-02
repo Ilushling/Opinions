@@ -168,7 +168,7 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
                     post_data = URLEncoder.encode("method", "UTF-8") + "=" + URLEncoder.encode(method, "UTF-8") + "&" +
                             URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(mSignIn.token, "UTF-8") + "&" +
                             URLEncoder.encode("loadQuestionsCount", "UTF-8") + "=" + URLEncoder.encode("" + loadQuestionsHistoryCount, "UTF-8") + "&" +
-                            URLEncoder.encode("loadQuestionsStep", "UTF-8") + "=" + URLEncoder.encode("2", "UTF-8");
+                            URLEncoder.encode("loadQuestionsStep", "UTF-8") + "=" + URLEncoder.encode("10", "UTF-8");
                     break;
                 case "sendQuestion":
                     if (mQuestion.question != null && mQuestion.opinion != null) {
@@ -270,16 +270,20 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
                                 JSONObject jsonQuestion = jsonQuestions.getJSONObject(i);
                                 mQuestions.add(new Question());
                                 // ID question
-                                Log.e(TAG, "STEP 0");
                                 mQuestions.get(i).questionID = jsonQuestion.getString("questionID");
-                                Log.e(TAG, "STEP 1");
                                 // Question
-                                mQuestions.get(i).question = jsonQuestion.getString("question");
-
-                                Log.e(TAG, "STEP 2");
-                                // Question
+                                mQuestions.get(i).question = jsonQuestion.getString("questionRU");
+                                // Opinions
+                                JSONArray jsonOpinionsRU = jsonQuestion.getJSONArray("opinionsRU");
+                                // User opinions count
+                                JSONObject jsonOpinionsCount = jsonQuestion.getJSONObject("userOpinionsCount");
+                                // Parsing array of opinions and put user opinions to each opinion
+                                for (int j = 0; j < jsonOpinionsRU.length(); j++) {
+                                    mQuestions.get(i).opinions.add(jsonOpinionsRU.getString(j));
+                                    mQuestions.get(i).userOpinionsCount.add(Integer.valueOf(jsonOpinionsCount.getString(String.valueOf(j + 1))));
+                                }
+                                // Opinion
                                 mQuestions.get(i).opinion = jsonQuestion.getString("opinion");
-                                Log.e(TAG, "STEP 3");
                             }
                             return mQuestions;
                     }

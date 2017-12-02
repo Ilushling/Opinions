@@ -6,10 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Question {
-    String questionID, opinionID;
+    String questionID, opinionID, question, opinion;
     Bitmap thumbnail;
-    String question;
     List<String> opinions = new ArrayList<String>();
     List<Integer> userOpinionsCount = new ArrayList<Integer>();
-    String opinion;
+    List<Integer> userOpinionsPercentage = new ArrayList<Integer>();
 }

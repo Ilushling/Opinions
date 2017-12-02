@@ -3,13 +3,13 @@ package ru.ilushling.opinion;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -27,7 +27,7 @@ public class Profile extends Fragment implements View.OnClickListener {
     public Button mSignInButton;
     public TextView mStatus;
     RadioButton radioRU, radioEN;
-    ListView lvMain;
+    RecyclerView rv;
 
     // Signing
     SignIn mSignIn;
@@ -72,7 +72,12 @@ public class Profile extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         // находим список
-        lvMain = getActivity().findViewById(R.id.lvMain);
+        rv = getActivity().findViewById(R.id.rv);
+        RVAdapter adapter = new RVAdapter(null);
+        rv.setAdapter(adapter);
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        rv.setLayoutManager(llm);
+        rv.setHasFixedSize(true);
 
         // Sign In
         mSignInButton = getActivity().findViewById(R.id.sign_in_button);
@@ -127,6 +132,10 @@ public class Profile extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
+
+        if (mSignIn != null) {
+            updateQuestionsHistory();
+        }
     }
 
     @Override
@@ -217,16 +226,13 @@ public class Profile extends Fragment implements View.OnClickListener {
             public void loadQuestionQuestionsHistory(List<Question> questions) {
                 List<String> questionsList = new ArrayList<String>();
                 List<String> opinionsList = new ArrayList<String>();
-                for (int i = 0; i < questions.size(); i++) {
-                    if (questions.get(i) != null) {
-                        questionsList.add(questions.get(i).question);
-                        opinionsList.add(questions.get(i).opinion);
-                    }
+
+                if (questions != null) {
+                    // создаем адаптер
+                    RVAdapter adapter = new RVAdapter(questions);
+                    // присваиваем адаптер списку
+                    rv.setAdapter(adapter);
                 }
-                // создаем адаптер
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.questions_history_item, questionsList);
-                // присваиваем адаптер списку
-                lvMain.setAdapter(adapter);
             }
         }, getActivity(), "loadQuestionsHistory", mSignIn, 0);
         backgroundConnection.execute();
