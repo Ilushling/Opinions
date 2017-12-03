@@ -27,10 +27,20 @@ public class Profile extends Fragment implements View.OnClickListener {
     public Button mSignInButton;
     public TextView mStatus;
     RadioButton radioRU, radioEN;
+    // Questions history
     RecyclerView rv;
+    LinearLayoutManager layoutManager;
+    RVAdapter adapter;
+
+    int loadQuestionsHistoryCount = 0, loadQuestionsHistoryStep = 3;
+    boolean questionsHistoryIsLoading = false;
+    List<Question> questionsHistoryAll = new ArrayList<Question>();
+
 
     // Signing
     SignIn mSignIn;
+
+    // Variables
 
     public Profile() {
         // Required empty public constructor
@@ -71,13 +81,15 @@ public class Profile extends Fragment implements View.OnClickListener {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        // находим список
+        // Questions history
         rv = getActivity().findViewById(R.id.rv);
-        RVAdapter adapter = new RVAdapter(null);
+        adapter = new RVAdapter(questionsHistoryAll);
         rv.setAdapter(adapter);
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
-        rv.setLayoutManager(llm);
+        layoutManager = new LinearLayoutManager(getActivity());
+        rv.setLayoutManager(layoutManager);
         rv.setHasFixedSize(true);
+        rv.setOnScrollListener(scrollListener);
+
 
         // Sign In
         mSignInButton = getActivity().findViewById(R.id.sign_in_button);
@@ -176,6 +188,24 @@ public class Profile extends Fragment implements View.OnClickListener {
         }
     }
 
+    RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            int visibleItemCount = layoutManager.getChildCount();//смотрим сколько элементов на экране
+            int totalItemCount = layoutManager.getItemCount();//сколько всего элементов
+            int firstVisibleItems = layoutManager.findFirstVisibleItemPosition();//какая позиция первого элемента
+
+            if (!questionsHistoryIsLoading) {//проверяем, грузим мы что-то или нет, эта переменная должна быть вне класса  OnScrollListener
+                if ((visibleItemCount + firstVisibleItems) >= totalItemCount) {
+                    Log.e(TAG, "try load: " + questionsHistoryIsLoading);
+                    questionsHistoryIsLoading = true;//ставим флаг что мы попросили еще элемены
+                    updateQuestionsHistory();//тут я использовал калбэк который просто говорит наружу что нужно еще элементов и с какой позиции начинать загрузку
+                }
+            }
+        }
+    };
+
     void signIn() {
         profileEventListener.signInEvent();
     }
@@ -216,25 +246,23 @@ public class Profile extends Fragment implements View.OnClickListener {
     }
 
     public interface QuestionsBackgroundConnectionQuestionsHistory {
-        void loadQuestionQuestionsHistory(List<Question> questions);
+        void loadQuestionsHistory(List<Question> questions);
     }
 
     // Update Questions History
     public void updateQuestionsHistory() {
         BackgroundConnection backgroundConnection = new BackgroundConnection(new QuestionsBackgroundConnectionQuestionsHistory() {
             @Override
-            public void loadQuestionQuestionsHistory(List<Question> questions) {
-                List<String> questionsList = new ArrayList<String>();
-                List<String> opinionsList = new ArrayList<String>();
-
+            public void loadQuestionsHistory(List<Question> questions) {
                 if (questions != null) {
-                    // создаем адаптер
-                    RVAdapter adapter = new RVAdapter(questions);
-                    // присваиваем адаптер списку
-                    rv.setAdapter(adapter);
+                    questionsHistoryAll.addAll(questions);
+                    loadQuestionsHistoryCount += loadQuestionsHistoryStep;
+                    //rv.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                 }
+                questionsHistoryIsLoading = false;
             }
-        }, getActivity(), "loadQuestionsHistory", mSignIn, 0);
+        }, getActivity(), "loadQuestionsHistory", mSignIn, loadQuestionsHistoryCount, loadQuestionsHistoryStep);
         backgroundConnection.execute();
     }
 

@@ -42,7 +42,7 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
     // Connection
     String responce, logs, server;
     Boolean cache = false;
-    int loadQuestionsHistoryCount = 0;
+    int loadQuestionsHistoryCount = 0, loadQuestionsHistoryStep = 0;
 
     // Questions
     private Questions.QuestionsBackgroundConnectionLoad mQuestionsBackgroundConnectionLoad;
@@ -89,12 +89,13 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
 
     // Profile
     // QuestionsHistory
-    public BackgroundConnection(Profile.QuestionsBackgroundConnectionQuestionsHistory backgroundConnectionLoad, Context context, String method, SignIn mSignIn, int loadQuestionsHistoryCount) {
+    public BackgroundConnection(Profile.QuestionsBackgroundConnectionQuestionsHistory backgroundConnectionLoad, Context context, String method, SignIn mSignIn, int loadQuestionsHistoryCount, int loadQuestionsHistoryStep) {
         this.mQuestionsBackgroundConnectionQuestionsHistory = backgroundConnectionLoad;
         this.context = context;
         this.method = method;
         this.mSignIn = mSignIn;
         this.loadQuestionsHistoryCount = loadQuestionsHistoryCount;
+        this.loadQuestionsHistoryStep = loadQuestionsHistoryStep;
     }
 
 
@@ -168,7 +169,7 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
                     post_data = URLEncoder.encode("method", "UTF-8") + "=" + URLEncoder.encode(method, "UTF-8") + "&" +
                             URLEncoder.encode("token", "UTF-8") + "=" + URLEncoder.encode(mSignIn.token, "UTF-8") + "&" +
                             URLEncoder.encode("loadQuestionsCount", "UTF-8") + "=" + URLEncoder.encode("" + loadQuestionsHistoryCount, "UTF-8") + "&" +
-                            URLEncoder.encode("loadQuestionsStep", "UTF-8") + "=" + URLEncoder.encode("150", "UTF-8");
+                            URLEncoder.encode("loadQuestionsStep", "UTF-8") + "=" + URLEncoder.encode("" + loadQuestionsHistoryStep, "UTF-8");
                     break;
                 case "sendQuestion":
                     if (mQuestion.question != null && mQuestion.opinion != null) {
@@ -390,7 +391,7 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
                     alert.show();
                     break;
                 case "loadQuestionsHistory":
-                    mQuestionsBackgroundConnectionQuestionsHistory.loadQuestionQuestionsHistory(question);
+                    mQuestionsBackgroundConnectionQuestionsHistory.loadQuestionsHistory(question);
                     break;
             }
         } catch (ClassCastException e) {
