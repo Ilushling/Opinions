@@ -300,7 +300,7 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
     }
     // [END Receive]
 
-    ProgressDialog pDialog;
+    ProgressDialog pDialog, pDialogDebug;
 
     @Override
     protected void onPreExecute() {
@@ -334,6 +334,21 @@ public class BackgroundConnection extends AsyncTask<String, String, List<Questio
         super.onPostExecute(question);
         // update UI
         try {
+            boolean debug = false;
+            if (debug) {
+                AlertDialog.Builder builderDebug = new AlertDialog.Builder(context);
+                builderDebug.setTitle("Отладка")
+                        .setMessage(responce)
+                        .setCancelable(false)
+                        .setNegativeButton("Закрыть",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                AlertDialog alertDebug = builderDebug.create();
+                alertDebug.show();
+            }
             switch (method) {
                 case "signIn":
                     break;

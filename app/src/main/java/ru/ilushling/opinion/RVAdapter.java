@@ -44,8 +44,12 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.QuestionsViewHolde
 
     List<Question> toPercentages(List<Question> questions) {
         for (int i = 0; i < questions.size(); i++) {
+            int userOpinionTotal = 0;
+            for (int k = 0; k < questions.get(i).userOpinionsCount.size(); k++) {
+                userOpinionTotal += questions.get(i).userOpinionsCount.get(k);
+            }
             for (int j = 0; j < questions.get(i).opinions.size(); j++) {
-                questions.get(i).userOpinionsPercentage.add((questions.get(i).userOpinionsCount.get(j) * 100) / questions.get(i).opinions.size());
+                questions.get(i).userOpinionsPercentage.add((questions.get(i).userOpinionsCount.get(j) * 100) / userOpinionTotal);
             }
         }
         return questions;
